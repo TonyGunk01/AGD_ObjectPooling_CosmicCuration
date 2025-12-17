@@ -99,11 +99,11 @@ namespace CosmicCuration.Player
         }
 
         private void FireBulletAtPosition(Transform fireLocation)
-        {
+        { 
             BulletController bulletToFire = bulletPool.GetBullet();
             bulletToFire.ConfigureBullet(fireLocation);
             GameService.Instance.GetSoundService().PlaySoundEffects(SoundType.PlayerBullet);
-        }
+        } 
 
         public void SetShieldState(ShieldState shieldStateToSet) => currentShieldState = shieldStateToSet;
 
@@ -133,7 +133,7 @@ namespace CosmicCuration.Player
             currentShootingState = ShootingState.NotFiring;
             GameService.Instance.GetEnemyService().SetEnemySpawning(false);
             GameService.Instance.GetPowerUpService().SetPowerUpSpawning(false);
-
+            
             await Task.Delay(playerScriptableObject.deathDelay * 1000);
             GameService.Instance.GetUIService().EnableGameOverUI();
         }
