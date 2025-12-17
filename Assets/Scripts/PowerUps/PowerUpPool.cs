@@ -10,7 +10,7 @@ namespace CosmicCuration.PowerUps
     {
         private PowerUpData powerUpData;
         
-        public PowerUpController GetPowerUP<T>(PowerUpData powerUpData) where T : PowerUpController
+        public PowerUpController GetPowerUp<T>(PowerUpData powerUpData) where T : PowerUpController
         {
             this.powerUpData = powerUpData;
 
