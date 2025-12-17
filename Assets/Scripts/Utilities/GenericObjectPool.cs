@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static CosmicCuration.Bullets.BulletPool;
-using static CosmicCuration.Utilities.GenericObjectPool<T>;
 
 namespace CosmicCuration.Utilities
 {
@@ -40,6 +38,12 @@ namespace CosmicCuration.Utilities
         protected virtual T CreateItem()
         {
             throw new NotImplementedException("Child Class doesn't have implementation of CreateItem()");
+        }
+
+        public void ReturnItem(T item)
+        {
+            PooledItem<T> pooledItem = pooledItems.Find(i => i.Item.Equals(item));
+            pooledItem.isUsed = false;
         }
 
         public class PooledItem<T>
