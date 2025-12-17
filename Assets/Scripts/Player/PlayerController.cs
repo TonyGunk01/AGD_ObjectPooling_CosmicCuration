@@ -10,8 +10,6 @@ namespace CosmicCuration.Player
     {
         private PlayerView playerView;
         private PlayerScriptableObject playerScriptableObject;
-        private BulletView bulletPrefab;
-        private BulletScriptableObject bulletScriptableObject;
         private BulletPool bulletPool;
 
         private WeaponMode currentWeaponMode;
