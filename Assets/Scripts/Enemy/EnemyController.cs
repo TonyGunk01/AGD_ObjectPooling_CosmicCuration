@@ -7,11 +7,9 @@ namespace CosmicCuration.Enemy
 {
     public class EnemyController
     {
-        // Dependencies:
         private EnemyView enemyView;
         private EnemyData enemyData;
 
-        // Variables:
         private EnemyState currentEnemyState;
         private int currentHealth;
         private float speed;
@@ -34,22 +32,25 @@ namespace CosmicCuration.Enemy
             currentHealth = enemyData.maxHealth;
             speed = Random.Range(enemyData.minimumSpeed, enemyData.maximumSpeed);
             movementTimer = enemyData.movementDuration;
+            enemyView.gameObject.SetActive(true);
         }
 
         private void SetEnemyOrientation(EnemyOrientation orientation)
         {
-            // Rotate the enemy based on its orientation
             switch (orientation)
             {
                 case EnemyOrientation.Left:
                     enemyView.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
                     break;
+
                 case EnemyOrientation.Right:
                     enemyView.transform.rotation = Quaternion.Euler(0f, 0f, -90f);
                     break;
+
                 case EnemyOrientation.Up:
                     enemyView.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
                     break;
+
                 case EnemyOrientation.Down:
                     enemyView.transform.rotation = Quaternion.Euler(0f, 0f, 180f);
                     break;
@@ -59,6 +60,7 @@ namespace CosmicCuration.Enemy
         public void TakeDamage(int damageToTake)
         {
             currentHealth -= damageToTake;
+
             if (currentHealth <= 0)
                 EnemyDestroyed();
         }
@@ -76,6 +78,7 @@ namespace CosmicCuration.Enemy
                     movementTimer = enemyData.movementDuration;
                 }
             }
+
             else if(currentEnemyState == EnemyState.Rotating)
             {
                 enemyView.transform.rotation = Quaternion.RotateTowards(enemyView.transform.rotation, targetRotation, enemyData.rotationSpeed * Time.deltaTime);
@@ -106,7 +109,8 @@ namespace CosmicCuration.Enemy
             GameService.Instance.GetUIService().IncrementScore(enemyData.scoreToGrant);
             GameService.Instance.GetSoundService().PlaySoundEffects(SoundType.EnemyDeath);
             GameService.Instance.GetVFXService().PlayVFXAtPosition(VFXType.EnemyExplosion, enemyView.transform.position);
-            Object.Destroy(enemyView.gameObject);
+            enemyView.gameObject.SetActive(false);
+            GameService.Instance.GetEnemyService().ReturnEnemyToPool(this);
         }
 
         private enum EnemyState

@@ -8,11 +8,9 @@ namespace CosmicCuration.Player
 {
     public class PlayerController
     {
-        // Dependencies
         private PlayerView playerView;
         private PlayerScriptableObject playerScriptableObject;
-        private BulletView bulletPrefab;
-        private BulletScriptableObject bulletScriptableObject;
+        private BulletPool bulletPool;
 
         private WeaponMode currentWeaponMode;
         private ShootingState currentShootingState;
@@ -20,14 +18,12 @@ namespace CosmicCuration.Player
         private int currentHealth;
         private float currentRateOfFire;
 
-
-        public PlayerController(PlayerView playerViewPrefab, PlayerScriptableObject playerScriptableObject, BulletView bulletPrefab, BulletScriptableObject bulletScriptableObject)
+        public PlayerController(PlayerView playerViewPrefab, PlayerScriptableObject playerScriptableObject, BulletPool bulletPool)
         {
             playerView = Object.Instantiate(playerViewPrefab);
             playerView.SetController(this);
             this.playerScriptableObject = playerScriptableObject;
-            this.bulletPrefab = bulletPrefab;
-            this.bulletScriptableObject = bulletScriptableObject;
+            this.bulletPool = bulletPool;
 
             InitializeVariables();
         }
@@ -41,6 +37,7 @@ namespace CosmicCuration.Player
             currentShootingState = ShootingState.NotFiring;
             GameService.Instance.GetUIService().UpdateHealthUI(currentHealth);
         }
+
         public void HandlePlayerInput()
         {
             HandlePlayerMovement();
@@ -52,17 +49,19 @@ namespace CosmicCuration.Player
         {
             if (Input.GetKey(KeyCode.W))
                 playerView.transform.Translate(Vector2.up * Time.deltaTime * playerScriptableObject.movementSpeed);
+
             if (Input.GetKey(KeyCode.S))
                 playerView.transform.Translate(Vector2.down * Time.deltaTime * playerScriptableObject.movementSpeed);
+
             if (Input.GetKey(KeyCode.A))
                 playerView.transform.Translate(Vector2.left * Time.deltaTime * playerScriptableObject.movementSpeed);
+
             if (Input.GetKey(KeyCode.D))
                 playerView.transform.Translate(Vector2.right * Time.deltaTime * playerScriptableObject.movementSpeed);
         }
 
         private void HandlePlayerRotation()
         {
-            // Rotate the player to look in the direction of mouse position.
             var dir = Input.mousePosition - Camera.main.WorldToScreenPoint(playerView.transform.position);
             var angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             playerView.transform.rotation = Quaternion.AngleAxis(angle - 90, Vector3.forward);
@@ -72,12 +71,15 @@ namespace CosmicCuration.Player
         {
             if (Input.GetKeyDown(KeyCode.Space))
                 FireWeapon();
+
             if (Input.GetKeyUp(KeyCode.Space))
                 currentShootingState = ShootingState.NotFiring;
         }
+
         private async void FireWeapon()
         {
             currentShootingState = ShootingState.Firing;
+
             while (currentShootingState == ShootingState.Firing)
             {
                 switch (currentWeaponMode)
@@ -85,21 +87,24 @@ namespace CosmicCuration.Player
                     case WeaponMode.SingleCanon:
                         FireBulletAtPosition(playerView.canonTransform);
                         break;
+
                     case WeaponMode.DoubleTurret:
                         FireBulletAtPosition(playerView.turretTransform1);
                         FireBulletAtPosition(playerView.turretTransform2);
                         break;
                 }
+
                 await Task.Delay(Mathf.RoundToInt(currentRateOfFire * 1000));
             }
         }
 
         private void FireBulletAtPosition(Transform fireLocation)
         {
-            BulletController bulletToFire = new BulletController(bulletPrefab, bulletScriptableObject);
+            BulletController bulletToFire = bulletPool.GetBullet();
             bulletToFire.ConfigureBullet(fireLocation);
             GameService.Instance.GetSoundService().PlaySoundEffects(SoundType.PlayerBullet);
         }
+
         public void SetShieldState(ShieldState shieldStateToSet) => currentShieldState = shieldStateToSet;
 
         public void ToggleDoubleTurret(bool doubleTurretActive) => currentWeaponMode = doubleTurretActive ? WeaponMode.DoubleTurret : WeaponMode.SingleCanon;
@@ -129,7 +134,6 @@ namespace CosmicCuration.Player
             GameService.Instance.GetEnemyService().SetEnemySpawning(false);
             GameService.Instance.GetPowerUpService().SetPowerUpSpawning(false);
 
-            // Wait for Player Ship Destruction.
             await Task.Delay(playerScriptableObject.deathDelay * 1000);
             GameService.Instance.GetUIService().EnableGameOverUI();
         }
