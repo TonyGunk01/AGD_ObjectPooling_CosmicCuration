@@ -4,6 +4,7 @@ using UnityEngine;
 namespace CosmicCuration.Enemy
 {
     [CreateAssetMenu(fileName = "EnemyScriptableObject", menuName = "ScriptableObjects/EnemySO")]
+    
     public class EnemyScriptableObject : ScriptableObject
     {
         public float spawnDistance;

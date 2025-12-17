@@ -1,41 +1,46 @@
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace CosmicCuration.Utilities
 {
     public class GenericObjectPool<T> where T : class
     {
-        public List<PooledItem<T>> pooledItems = new List<PooledItem<T>>();
+        private List<PooledItem<T>> pooledItems = new List<PooledItem<T>>();
 
-        public virtual T GetItem<U>() where U : T
+        protected T GetItem()
         {
             if (pooledItems.Count > 0)
             {
-                PooledItem<T> item = pooledItems.Find(item => !item.isUsed && item.Item is U);
+                PooledItem<T> item = pooledItems.Find(item => !item.isUsed);
+
                 if (item != null)
                 {
                     item.isUsed = true;
                     return item.Item;
                 }
             }
-            return CreateNewPooledItem<U>();
+
+            return CreateNewPooledItem();
         }
 
-        private T CreateNewPooledItem<U>() where U : T
+        private T CreateNewPooledItem()
         {
             PooledItem<T> newItem = new PooledItem<T>();
-            newItem.Item = CreateItem<U>();
+            newItem.Item = CreateItem();
             newItem.isUsed = true;
             pooledItems.Add(newItem);
+
             return newItem.Item;
         }
 
-        protected virtual T CreateItem<U>() where U : T
+        protected virtual T CreateItem()
         {
-            throw new NotImplementedException("CreateItem() method not implemented in derived class");
+            throw new NotImplementedException("Child Class doesn't have implementation of CreateItem()");
         }
 
-        public virtual void ReturnItem(T item)
+        public void ReturnItem(T item)
         {
             PooledItem<T> pooledItem = pooledItems.Find(i => i.Item.Equals(item));
             pooledItem.isUsed = false;
@@ -45,6 +50,6 @@ namespace CosmicCuration.Utilities
         {
             public T Item;
             public bool isUsed;
-        }
+        }        
     }
 }
