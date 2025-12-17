@@ -126,7 +126,7 @@ namespace CosmicCuration.Player
         private async void PlayerDeath()
         {
             Object.Destroy(playerView.gameObject);
-            
+
             GameService.Instance.GetVFXService().PlayVFXAtPosition(VFXType.PlayerExplosion, playerView.transform.position);
             GameService.Instance.GetSoundService().PlaySoundEffects(SoundType.PlayerDeath);
 
