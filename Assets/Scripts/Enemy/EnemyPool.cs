@@ -19,12 +19,14 @@ namespace CosmicCuration.Enemy
             if (pooledEnemies.Count > 0)
             {
                 PooledEnemy enemy = pooledEnemies.Find(item => !item.isUsed);
+
                 if (enemy != null)
                 {
                     enemy.isUsed = true;
                     return enemy.Enemy;
                 }
             }
+
             return CreateNewPooledEnemy();
         }
 

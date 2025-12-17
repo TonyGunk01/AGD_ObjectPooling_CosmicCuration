@@ -25,6 +25,7 @@ namespace CosmicCuration.Bullets
                     return item.Bullet;
                 }
             }
+
             return CreateNewPooledBullet();
         }
 
@@ -34,6 +35,7 @@ namespace CosmicCuration.Bullets
             newBullet.Bullet = CreateBullet();
             newBullet.isUsed = true;
             pooledBullets.Add(newBullet);
+
             return newBullet.Bullet;
         }
 

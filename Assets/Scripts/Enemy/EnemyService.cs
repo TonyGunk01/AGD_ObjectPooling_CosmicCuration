@@ -38,6 +38,7 @@ namespace CosmicCuration.Enemy
             if (isSpawning)
             {
                 spawnTimer -= Time.deltaTime;
+
                 if (spawnTimer <= 0)
                 {
                     SpawnEnemy();
@@ -50,10 +51,8 @@ namespace CosmicCuration.Enemy
         #region Spawning Enemies
         private void SpawnEnemy()
         {
-            // Get a random orientation for the enemy (Up / Down / Left / Right)
             EnemyOrientation randomOrientation = (EnemyOrientation)Random.Range(0, Enum.GetValues(typeof(EnemyOrientation)).Length);
 
-            // Calculate a spawn position outside the game screen according to the orientation and spawn an enemy.
             SpawnEnemyAtPosition(CalculateSpawnPosition(randomOrientation), randomOrientation);
         }
 
@@ -65,7 +64,6 @@ namespace CosmicCuration.Enemy
 
         private Vector2 CalculateSpawnPosition(EnemyOrientation enemyOrientation)
         {
-            // Calculate a random spawn position outside the visible screen
             Vector3 spawnPosition = Vector3.zero;
             float halfScreenWidth = Camera.main.aspect * Camera.main.orthographicSize;
             float halfScreenHeight = Camera.main.orthographicSize;
@@ -101,6 +99,7 @@ namespace CosmicCuration.Enemy
         {
             if (currentSpawnRate > enemyScriptableObject.minimumSpawnRate)
                 currentSpawnRate -= enemyScriptableObject.difficultyDelta;
+
             else
                 currentSpawnRate = enemyScriptableObject.minimumSpawnRate;
         }
