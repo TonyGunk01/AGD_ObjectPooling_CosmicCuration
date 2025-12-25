@@ -5,22 +5,40 @@ namespace CosmicCuration.Player
 {
     public class PlayerService
     {
-        private BulletPool bulletPool;
         private PlayerController playerController;
-        private BulletPool bulletPool;
 
-        public PlayerService(PlayerView playerViewPrefab, PlayerScriptableObject playerScriptableObject, BulletView bulletPrefab, BulletScriptableObject bulletScriptableObject)
-        {
-            bulletPool = new BulletPool(bulletPrefab, bulletScriptableObject);
-            playerController = new PlayerController(playerViewPrefab, playerScriptableObject, bulletPool);
-        }
+        private int currentScore;
+        private int highScore;
 
+        public PlayerService(PlayerView playerViewPrefab, PlayerScriptableObject playerScriptableObject, BulletView bulletPrefab, BulletScriptableObject bulletScriptableObject)=> playerController = new PlayerController(playerViewPrefab, playerScriptableObject, bulletPrefab, bulletScriptableObject);
+        
         public PlayerController GetPlayerController() => playerController;
 
-        public void ReturnBulletToPool(BulletController returnedBullet) => bulletPool.ReturnBulletToPool(returnedBullet);
-
         public Vector3 GetPlayerPosition() => playerController.GetPlayerPosition();
-        
-        public void ReturnBulletToPool(BulletController bulletToReturn) => bulletPool.ReturnItem(bulletToReturn);
-    } 
+
+        public int GetCurrentScore() => currentScore;
+
+        public void UpdateScoreValue(int score)
+        {
+            currentScore += score;
+            GameService.Instance.UIService.UpdateScoreUI(currentScore);
+
+            if (currentScore > highScore)
+            {
+                highScore = currentScore;
+                PlayerPrefs.SetInt("HighScore", highScore);
+            }
+        }
+
+        public int GetHighScore()
+        {
+            if (PlayerPrefs.HasKey("HighScore"))
+                highScore = PlayerPrefs.GetInt("HighScore");
+
+            if (currentScore > highScore)
+                highScore = currentScore;
+
+            return highScore;
+        }
+    }
 }

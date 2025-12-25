@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -6,22 +7,18 @@ namespace CosmicCuration.Enemy
 {
     public class EnemyService
     {
-        #region Dependencies
+        private EnemyView enemyPrefab;
         private EnemyScriptableObject enemyScriptableObject;
-        private EnemyPool enemyPool;
-        #endregion
+        private List<EnemyController> enemyControllers;
 
-        #region Variables
         private bool isSpawning;
         private float currentSpawnRate;
         private float spawnTimer; 
-        #endregion
-
-        #region Initialization
+        
         public EnemyService(EnemyView enemyPrefab, EnemyScriptableObject enemyScriptableObject)
         {
+            this.enemyPrefab = enemyPrefab;
             this.enemyScriptableObject = enemyScriptableObject;
-            enemyPool = new EnemyPool(enemyPrefab, enemyScriptableObject.enemyData);
             InitializeVariables();
         }
 
@@ -30,15 +27,14 @@ namespace CosmicCuration.Enemy
             isSpawning = true;
             currentSpawnRate = enemyScriptableObject.initialSpawnRate;
             spawnTimer = currentSpawnRate;
+            enemyControllers = new List<EnemyController>();
         } 
-        #endregion
 
         public void Update()
         {
             if (isSpawning)
             {
                 spawnTimer -= Time.deltaTime;
-
                 if (spawnTimer <= 0)
                 {
                     SpawnEnemy();
@@ -48,22 +44,24 @@ namespace CosmicCuration.Enemy
             }
         }
 
-        #region Spawning Enemies
         private void SpawnEnemy()
         {
+            // Get a random orientation for the enemy (Up / Down / Left / Right)
             EnemyOrientation randomOrientation = (EnemyOrientation)Random.Range(0, Enum.GetValues(typeof(EnemyOrientation)).Length);
 
+            // Calculate a spawn position outside the game screen according to the orientation and spawn an enemy.
             SpawnEnemyAtPosition(CalculateSpawnPosition(randomOrientation), randomOrientation);
         }
 
         private void SpawnEnemyAtPosition(Vector2 spawnPosition, EnemyOrientation enemyOrientation)
         {
-            EnemyController spawnedEnemy = enemyPool.GetEnemy();
+            EnemyController spawnedEnemy = new EnemyController(enemyPrefab, enemyScriptableObject.enemyData);
             spawnedEnemy.Configure(spawnPosition, enemyOrientation);
         }
 
         private Vector2 CalculateSpawnPosition(EnemyOrientation enemyOrientation)
         {
+            // Calculate a random spawn position outside the visible screen
             Vector3 spawnPosition = Vector3.zero;
             float halfScreenWidth = Camera.main.aspect * Camera.main.orthographicSize;
             float halfScreenHeight = Camera.main.orthographicSize;
@@ -93,13 +91,11 @@ namespace CosmicCuration.Enemy
 
             return spawnPosition;
         } 
-        #endregion
 
         private void IncreaseDifficulty()
         {
             if (currentSpawnRate > enemyScriptableObject.minimumSpawnRate)
                 currentSpawnRate -= enemyScriptableObject.difficultyDelta;
-
             else
                 currentSpawnRate = enemyScriptableObject.minimumSpawnRate;
         }
@@ -108,7 +104,13 @@ namespace CosmicCuration.Enemy
 
         public void SetEnemySpawning(bool setActive) => isSpawning = setActive;
 
-        public void ReturnEnemyToPool(EnemyController enemyToReturn) => enemyPool.ReturnItem(enemyToReturn);
+        public void DestroyActiveEnemies()
+        {
+            for (int i = 0; i < enemyControllers.Count; i++)
+            {
+                enemyControllers[i].DestroyEnemy();
+            }
+        }
     }
 
     public enum EnemyOrientation

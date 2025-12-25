@@ -7,5 +7,6 @@ namespace CosmicCuration.Audio
         EnemyDeath,
         PlayerDeath,
         PlayerBullet,
+        ButtonClick       
     }
 }

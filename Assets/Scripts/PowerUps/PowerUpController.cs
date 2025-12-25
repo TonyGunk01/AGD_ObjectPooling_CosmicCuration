@@ -46,5 +46,11 @@ namespace CosmicCuration.PowerUps
         }
 
         public virtual void Deactivate() => isActive = false;
+
+        public void DestroyPowerUp()
+        {
+            if (powerUpView == null) return;
+            Object.Destroy(powerUpView.gameObject);
+        }
     } 
 }
