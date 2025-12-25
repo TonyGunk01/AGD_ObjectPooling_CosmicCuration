@@ -1,4 +1,3 @@
-#region Namespaces
 using UnityEngine;
 using TMPro;
 using CosmicCuration.Audio;
@@ -8,71 +7,71 @@ using CosmicCuration.VFX;
 using CosmicCuration.Player;
 using CosmicCuration.UI;
 using CosmicCuration.Utilities;
-using CosmicCuration.PowerUps; 
-#endregion
+using CosmicCuration.PowerUps;
 
 
 public class GameService : GenericMonoSingleton<GameService>
 {
-    #region Dependencies
+    public PlayerService PlayerService { get; private set; }
+    public EnemyService EnemyService { get; private set; }
+    public DifficultyService DifficultyService { get; private set; }
+    public PowerUpService PowerUpService { get; private set; }
+    public VFXService VfxService { get; private set; }
+    public SoundService SoundService { get; private set; }
+    public UIService UIService { get { return uiService; } }
 
-    private PlayerService playerService;
-    private EnemyService enemyService;
-    private PowerUpService powerUpService;
-    private VFXService vfxService;
-    private SoundService soundService;
-    [SerializeField] private UIView uiService;
+    [SerializeField] private UIService uiService;
 
-    #endregion
-
-    #region Prefabs
     [SerializeField] private PlayerView playerPrefab;
     [SerializeField] private BulletView playerBulletPrefab;
     [SerializeField] private EnemyView enemyPrefab;
-    #endregion
 
-    #region Scriptable Objects
     [SerializeField] private PlayerScriptableObject playerScriptableObject;
     [SerializeField] private BulletScriptableObject playerBulletScriptableObject;
     [SerializeField] private EnemyScriptableObject enemyScriptableObject;
     [SerializeField] private PowerUpScriptableObject powerUpScriptableObject;
     [SerializeField] private SoundScriptableObject soundScriptableObject;
     [SerializeField] private VFXScriptableObject vfxScriptableObject;
-    #endregion
-
-    #region Scene References
+ 
     [SerializeField] private AudioSource audioEffectSource;
     [SerializeField] private AudioSource backgroundMusicSource;
-    #endregion
 
     private void Start()
     {
-        // Initialize all Services.
-        soundService = new SoundService(soundScriptableObject, audioEffectSource, backgroundMusicSource);
-        playerService = new PlayerService(playerPrefab, playerScriptableObject, playerBulletPrefab, playerBulletScriptableObject);
-        powerUpService = new PowerUpService(powerUpScriptableObject);
-        enemyService = new EnemyService(enemyPrefab, enemyScriptableObject);
-        vfxService = new VFXService(vfxScriptableObject);
+        SoundService = new SoundService(soundScriptableObject, audioEffectSource, backgroundMusicSource);
+        DifficultyService = new DifficultyService(playerScriptableObject);
+    }
+
+    public void InstantiateGameplayObjects()
+    {
+        playerScriptableObject = DifficultyService.GetDifficultyVariables();
+        
+        PlayerService = new PlayerService(playerPrefab, playerScriptableObject, playerBulletPrefab, playerBulletScriptableObject);
+        PowerUpService = new PowerUpService(powerUpScriptableObject);
+        EnemyService = new EnemyService(enemyPrefab, enemyScriptableObject);
+        VfxService = new VFXService(vfxScriptableObject);
     }
 
     private void Update()
     {
-        powerUpService?.Update();
-        enemyService?.Update();
+        PowerUpService?.Update();
+        EnemyService?.Update();
     }
 
-    #region Getters
-    public PlayerService GetPlayerService() => playerService;
+    private void CalculateAndSaveHighScore()
+    {
+        int score = PlayerService.GetHighScore();
+        PlayerPrefs.SetInt("HighScore", score);
+    }
 
-    public EnemyService GetEnemyService() => enemyService;
+    public void OnGameOver()
+    {
+        PowerUpService.SetPowerUpSpawning(false);
+        PowerUpService.DestroyActivePowerUps();
+        EnemyService.SetEnemySpawning(false);
+        EnemyService.DestroyActiveEnemies();
 
-    public PowerUpService GetPowerUpService() => powerUpService;
-
-    public VFXService GetVFXService() => vfxService;
-
-    public SoundService GetSoundService() => soundService;
-
-    public UIView GetUIService() => uiService; 
-    #endregion
-
+        CalculateAndSaveHighScore();
+        PlayerService.UpdateScoreValue(0);
+    }
 }

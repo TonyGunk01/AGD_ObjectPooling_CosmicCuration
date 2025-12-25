@@ -7,13 +7,15 @@ namespace CosmicCuration.PowerUps
         public override void Activate()
         {
             base.Activate();
-            GameService.Instance.GetPlayerService().GetPlayerController().ToggleRapidFire(true);
+            GameService.Instance.PlayerService.GetPlayerController().ToggleRapidFire(true);
+            GameService.Instance.UIService.TogglePowerUpUI(true, PowerUpType.RapidFire);
         }
 
         public override void Deactivate()
         {
             base.Deactivate();
-            GameService.Instance.GetPlayerService().GetPlayerController().ToggleRapidFire(false);
+            GameService.Instance.PlayerService.GetPlayerController().ToggleRapidFire(false);
+            GameService.Instance.UIService.TogglePowerUpUI(false, PowerUpType.RapidFire);
         }
-    } 
+    }
 }

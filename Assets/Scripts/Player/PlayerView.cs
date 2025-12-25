@@ -9,6 +9,7 @@ namespace CosmicCuration.Player
         [SerializeField] public Transform canonTransform;
         [SerializeField] public Transform turretTransform1;
         [SerializeField] public Transform turretTransform2;
+        [SerializeField] public GameObject shield;
 
         private PlayerController playerController;
 
@@ -17,5 +18,7 @@ namespace CosmicCuration.Player
         private void Update() => playerController.HandlePlayerInput();
 
         public void TakeDamage(int damageToTake) => playerController.TakeDamage(damageToTake);
+
+        public void ToggleShieldUI(bool value)=> shield.SetActive(value);
     } 
 }
