@@ -6,4 +6,4 @@ Due to the nature of the game where the player can shoot infinite number of bull
 
 Object pools keep a finite number of such objects in memory and instantiate them when needed. If an object is destroyed in game or not in use, then it is returned back to the pool. This saves a lot of CPU resources and power which can be allocated for more important mechanisms. 
 
-Video demo:
+[Click here for video demo](https://youtu.be/-ZfvhYoLfIo)
